@@ -22,7 +22,6 @@ class TestUserAuthentication(unittest.TestCase):
         output = json.loads(response.data.decode())
         self.assertEqual(output['error'], "User already exist")
 
-
     def test_user_login(self):
         """Test user can login """
         user = {"username": "rozzah", "password": "password"}
@@ -30,7 +29,8 @@ class TestUserAuthentication(unittest.TestCase):
         response = self.client.post("api/v1/auth/login", data=userdata)
         self.assertEqual(response.status_code, 201)
         output = json.loads(response.data.decode())
-        self.assertEqual(output['message'], "You have been loged in successfully")
+        self.assertEqual(output['message'],
+                         "You have been loged in successfully")
 
     def test_user_cannot_login_with_invalid_credentials(self):
         """Test a user cannot login in with invalid credentials"""
