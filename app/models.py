@@ -17,7 +17,6 @@ class User(db.Model):
     password = db.Column(db.String)
     bucketlists = db.relationship(
         "Bucketlist", backref="created_by", lazy="dynamic")
-    
     bucketitems = db.relationship(
         "BucketlistItem", backref="created_by", lazy="dynamic")
 
