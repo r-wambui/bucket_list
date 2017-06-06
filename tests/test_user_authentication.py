@@ -2,6 +2,7 @@ import unittest
 import json
 
 
+
 class TestUserAuthentication(unittest.TestCase):
 
     def test_user_registration(self):

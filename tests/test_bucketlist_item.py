@@ -2,7 +2,7 @@ import unittest
 import json
 
 
-class TestBucketlistItems(unittest.Testcase):
+class TestBucketlistItems(unittest.TestCase):
 
     def setUp(self):
 

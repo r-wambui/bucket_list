@@ -1,8 +1,9 @@
-import json
 import unittest
+import json
 
 
-class TestBucketList(unittest.Testcase):
+
+class TestBucketList(unittest.TestCase):
 
     def setUp(self):
 
