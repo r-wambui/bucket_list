@@ -1,26 +1,52 @@
+from datetime import datetime
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-
+from werkzeug.security import generate_password_hash, check_password_hash
+from itsdangerous import (TimedJSONWebSignatureSerializer
+                          as Serializer, BadSignature, SignatureExpired)
+from passlib.apps import custom_app_context as pwd_context
 
 app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../db.db'
 app.config.from_object('config.DevelopmentConfig')
 db = SQLAlchemy(app)
 
 class UserModel(db.Model):
-    ___tablename__ = "usermodel"
+    ___tablename__ = "user_model"
 
     def __init__(self,username,password):
         self.username = username
-        self.password = password
+        self.password = pwd_context.encrypt(password)
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(30))
     password = db.Column(db.String)
-    # bucketlists = db.relationship(
-    #     "Bucketlist", backref="created_by", lazy="dynamic")
-    # bucketitems = db.relationship(
-    #     "BucketlistItem", backref="created_by", lazy="dynamic")
+    bucketlists = db.relationship(
+        "Bucketlist", backref="user_model", lazy="dynamic")
+    bucketitems = db.relationship(
+        "BucketlistItem", backref="user_model", lazy="dynamic")
+
+
+    def verify_password(self, password):
+        return pwd_context.verify(password,self.password)
+
+
+    def generate_auth_token(self, expiration=3600):
+        s = Serializer(app.config['SECRET_KEY'], expires_in = expiration)
+        return s.dumps({"id": self.id})
+
+    @staticmethod
+    def verify_auth_token(token):
+        s = Serializer(app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except SignatureExpired:
+            return None
+        except BadSignature:
+            return None
+        return UserModel.query.get(data['id'])
+
+
+
 
 
 class Bucketlist(db.Model):
@@ -28,11 +54,11 @@ class Bucketlist(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    date_created = db.Column(db.DateTime)
-    date_modified = db.Column(db.DateTime)
-    # created_by = db.Column(db.Integer, db.ForeignKey("usermodel.id"))
-    # bucketitems = db.relationship(
-    #     "BucketlistItem", backref="bucketlist", lazy="dynamic")
+    date_created = db.Column(db.DateTime, default=datetime.now, nullable=False)
+    date_modified = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
+    created_by = db.Column(db.Integer, db.ForeignKey("user_model.id"))
+    bucketitems = db.relationship(
+        "BucketlistItem", backref="bucketlist", lazy="dynamic")
 
 
 class BucketlistItem(db.Model):
@@ -41,6 +67,6 @@ class BucketlistItem(db.Model):
     name = db.Column(db.String)
     date_created = db.Column(db.DateTime)
     date_modified = db.Column(db.DateTime)
-    # created_by = db.Column(db.Integer, db.ForeignKey("usermodel.id"))
-    # bucketlist_id = db.Column(db.Integer, db.ForeignKey("bucketlist.id"))
+    created_by = db.Column(db.Integer, db.ForeignKey("user_model.id"))
+    bucketlist_id = db.Column(db.Integer, db.ForeignKey("bucketlist.id"))
     done = db.Column(db.Boolean, default= False)

@@ -1,17 +1,18 @@
 import unittest
 import json
 
+import run
 
 
 class TestBucketList(unittest.TestCase):
 
     def setUp(self):
-
+        self.client = run.app.test_client()
         user = {"username": "rozzah", "password": "password"}
         userdata = json.dumps(user)
-        response = self.client.post("api/v1/auth/login", data=userdata)
-        access_token = output['access_token']
-        self.headers = {'Authorization': 'JWT' % access_token}
+        response = self.client.post("/v1/auth/login", data=userdata)
+        access_token = ['access_token']
+        self.headers = {'Authorization': access_token}
 
     def tearDown(self):
         pass
@@ -23,23 +24,23 @@ class TestBucketList(unittest.TestCase):
         """
         bucket_list = {"name": "interior_design"}
         response = self.client.post(
-            "api/v1/bucketlists", data=json.dumps(bucket_list), headers=None)
+            "/v1/bucketlists", data=json.dumps(bucket_list), headers=None)
         self.assertEqual(response.status_code, 401)
 
     def test_create_bucket_list(self):
         """Test a bucket_list can be created """
         bucket_list = {"name": "interior_design"}
         response = self.client.post(
-            "api/v1/bucket_lists", data=json.dumps(bucket_list), headers=self.headers)
+            "/v1/bucketlists/", data=json.dumps(bucket_list), headers=self.headers, content_type="application/json")
         self.assertEqual(response.status_code, 201)
-        output = json.loads(response.data.decode())
+        output = json.loads(response.data)
         self.assertEqual(output['message'],
                          "You have created a new bucket list")
 
     def test_get_all_bucket_lists(self):
         """Test a user can fetch all the bucket_lists created """
-        response = self.client.get("api/v1/bucket_lists", headers=self.headers)
-        output = json.loads(response.data.decode())
+        response = self.client.get("/v1/bucket_lists", headers=self.headers)
+        output = json.loads(response.data)
         output = output["bucket_lists"]
         bucket_list1 = output[0]
         bucket_list2 = output[1]
@@ -60,12 +61,12 @@ class TestBucketList(unittest.TestCase):
         """Test that a bucket list can be edited """
         bucket_list = {"name": "interior_design"}
         response = self.client.post(
-            "api/v1/bucket_lists", data=json.dumps(bucket_list), headers=self.headers)
+            "/v1/bucket_lists", data=json.dumps(bucket_list), headers=self.headers)
         self.assertEqual(response.status_code, 201)
         updated_bucket_list = {"name": "designing"}
         response = self.client.put(
-            "api/v1/bucket_lists", data=json.dumps(updated_bucket_list), headers=self.headers)
-        self.assertEqual(response.status_code, 200)
+            "/v1/bucket_lists", data=json.dumps(updated_bucket_list), headers=self.headers)
+        self.assertEqual(response.status_code, 201)
         output = json.loads(response.data.decode())
         self.assertEqual(output['message'],
                          "You have updated the bucketlist successfully")
@@ -74,13 +75,11 @@ class TestBucketList(unittest.TestCase):
         """Test that a single bucket list can be deleted """
         bucket_list = {"name": "interior_design"}
         response = self.client.post(
-            "api/v1/bucket_lists", data=json.dumps(bucket_list), headers=self.headers)
+            "/v1/bucket_lists", data=json.dumps(bucket_list), headers=self.headers)
         self.assertEqual(response.status_code, 201)
         response = self.client.delete(
-            "api/v1/bucket_lists", data=json.dumps(bucket_list), headers=self.headers)
+            "/v1/bucket_lists", data=json.dumps(bucket_list), headers=self.headers)
         self.assertEqual(response.status_code, 200)
         output = json.loads(response.data.decode())
         self.assertEqual(output['message'],
                          "You have deleted the bucketlist")
-
-

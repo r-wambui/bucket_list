@@ -1,4 +1,7 @@
+import json
+
 from flask_restful import Resource, Api, fields, marshal_with, reqparse
+
 from app.models import db, UserModel
 
 
@@ -21,27 +24,34 @@ user_fields = {
 
 
 class UserRegister(Resource):
-    @marshal_with(user_fields)
     def post(self):
         args = parser.parse_args()
-        user = UserModel(username=args.username, password=args.password)
-        db.session.add(user)
-        db.session.commit()
+        person = UserModel.query.filter_by(username=args.username).first()
 
-        return user
+        if person:
+            return {'error': "User already exist"}, 409
+
+        else:
+            user = UserModel(username=args.username, password=args.password)
+            db.session.add(user)
+            db.session.commit()    
+            return {'message': 'User created successfully'}, 201
+
 
 
 class UserLogin(Resource):
-    @marshal_with(user_fields)
     def post(self):
         args = parser.parse_args()
-        user = UserModel(username=args.username, password=args.password)
-       
-        if user:
-            UserModel.query.filter_by(username=args.username).first()
-        else:
-            return {"message": "please enter a username and password"}
+        # user = UserModel(username=args.username, password=args.password)
 
-        return user
+        person = UserModel.query.filter_by(username=args.username).first()
+        if person and person.verify_password(args.password):
+            token = person.generate_auth_token()
+            return ({'Authorization':'Token ' + token.decode('ascii')}, 200)
+        # password = UserModel.query.filter_by(password=args.password).first()
+        else:
+            return {'error': "Invalid username/password"}, 401
+
+
 
 
