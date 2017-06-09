@@ -39,6 +39,7 @@ class TestBucketlistItems(unittest.TestCase):
                          "You have created a new bucketlist item")
 
     def test_update_bucketlist_item(self):
+        """ITEM EDIT"""
         bucketlist_item = {"name": "home interior design"}
         response = self.client.post(
             "api/v1/bucketlists/1/items", data=json.dumps(bucketlist_item), headers=self.headers)

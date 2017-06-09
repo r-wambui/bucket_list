@@ -65,8 +65,8 @@ class BucketlistItem(db.Model):
     ___tablename__ = "bucketlist_item"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    date_created = db.Column(db.DateTime)
-    date_modified = db.Column(db.DateTime)
+    date_created = db.Column(db.DateTime, default=datetime.now, nullable=False)
+    date_modified = db.Column(db.DateTime, default=datetime.now, nullable=False)
     created_by = db.Column(db.Integer, db.ForeignKey("user_model.id"))
     bucketlist_id = db.Column(db.Integer, db.ForeignKey("bucketlist.id"))
     done = db.Column(db.Boolean, default= False)
