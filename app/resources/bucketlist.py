@@ -3,7 +3,7 @@ import json
 
 from flask_httpauth import HTTPTokenAuth
 from flask_restful import Resource, Api, fields, reqparse
-from flask import g, request, Flask
+from flask import g, request, Flask, url_for
 
 from app.models import db, Bucketlist, UserModel
 app = Flask(__name__)
@@ -38,7 +38,7 @@ parser.add_argument(
     "page", type=int, required=False, )
 
 
-class BucketList(Resource):
+class CreateBucketList(Resource):
 
     @auth.login_required
     def post(self):
@@ -60,79 +60,80 @@ class BucketList(Resource):
             }), 201
 
 
-class FetchBucketList(Resource):
+class SingleBucketList(Resource):
     @auth.login_required
     def get(self, id):
-        # args = parser.parse_args()
         # fetch bucketlist by id
         if id:
             bucketlist = Bucketlist.query.filter_by(id=id).first()
             if bucketlist:
                 if bucketlist.created_by == g.user.id:
-                        return {"id": bucketlist.id,
-                                "name": bucketlist.name,
-                                
-                                "items": [{
-                                    "id": item.id,
-                                    "name": item.name,
-                                    "date_created": str(item.date_created),
-                                    "date_modified": str(item.date_modified),
-                                    "done": item.done }for item in bucketlist.bucketitems],
-                                "date_created": str(bucketlist.date_created),
-                                "date_modified": str(bucketlist.date_modified),
-                                "created_by": bucketlist.created_by,}
-                              
+                    return {"id": bucketlist.id,
+                            "name": bucketlist.name,
+
+                            "items": [{
+                                "id": item.id,
+                                "name": item.name,
+                                "date_created": str(item.date_created),
+                                "date_modified": str(item.date_modified),
+                                "done": item.done}
+                                for item in bucketlist.bucketitems],
+                            "date_created": str(bucketlist.date_created),
+                            "date_modified": str(bucketlist.date_modified),
+                            "created_by": bucketlist.created_by, }
+
             else:
                 return (
                     {"error": "There is no bucketlist with the given id."},
                     404)
 
 
-class BucketLists(Resource):
-    
+class AllBucketList(Resource):
+
     # fetch all the bucket list of a user
     @auth.login_required
     def get(self):
-        args = parser.parse_args()
-        if args.page and args.limit:
+        # import ipdb;ipdb.set_trace()
+        page = request.args.get('page')
+        limit = request.args.get('limit')
+        if page and limit:
+            print ("ssss")
             bucketlists = (Bucketlist.query.filter_by(
-                created_by=g.user.id).paginate(page=args.page,
-                                               per_page=args.limit,
+                created_by=g.user.id).paginate(page=int(page),
+                                               per_page=int(limit),
                                                error_out=False))
             buckets = []  # create an empty bucket list
             next_url = None
             prev_url = None
 
             if bucketlists:
-                for bucketlist in bucketlists.bucketitems:
-                    buckets.append({
-                        "id": bucketlist.id,
-                        "name": bucketlist.name,
-                        "created_at": str(bucketlist.created_at),
-                        "modified_at": str(bucketlist.modified_at),
-                        "created_by": bucketlist.created_by,
-                        "items": [{
-                            "id": item.id,
-                            "name": item.name,
-                            "done": item.done
-                        }
-                            for item in bucketlist.bucketitems],
-                    })
+                for bucketlist in bucketlists.items:
+                    buckets.append({"id": bucketlist.id,
+                                    "name": bucketlist.name,
+                                    "items": [{
+                                        "id": item.id,
+                                        "name": item.name,
+                                        "date_created": str(item.date_created),
+                                        "date_modified": str(item.date_modified),
+                                        "done": item.done}
+                                        for item in bucketlist.bucketitems],
+                                    "date_created": str(bucketlist.date_created),
+                                    "date_modified": str(bucketlist.date_modified),
+                                    "created_by": bucketlist.created_by, })
                     if bucketlists.has_next:
-                        next_url = (urljoin(
-                            app.config["development"].BASEURL +
-                            "/bucketlists", app.url_for(
-                                BucketLists,
-                                page=bucketlists.next_num,
-                                limit=bucketlists.per_page)))
+                        next_url = urljoin(
+                            "http://127.0.0.1:5000/", "/v1/bucketlists"),
+                        url_for(
+                            "allbucketlist",
+                            page=bucketlists.prev_num,
+                            limit=bucketlists.per_page)
 
                     if bucketlists.has_prev:
-                        prev_url = (urljoin(
-                            app.config["development"] +
-                            "/bucketlists", app.url_for(
-                                BucketLists,
-                                page=bucketlists.prev_num,
-                                limit=bucketlists.per_page)))
+                        prev_url = (urljoin("http://127.0.0.1:5000/",
+                                            "/v1/bucketlists"), url_for(
+                            "allbucketlist",
+                            page=bucketlists.prev_num,
+                            limit=bucketlists.per_page))
 
                     if buckets:
                         page_details = {
@@ -140,41 +141,11 @@ class BucketLists(Resource):
                             "limit": 20,
                             "next_page": next_url,
                             "prev_page": prev_url,
-                            "bucketlists":buckets
+                            "bucketlists": buckets
                         }
                         return page_details, 200
                     else:
                         return {"error": "You have no bucketlists"}, 404
-
-            # elif args.query:
-
-            #     bucketlists = (Bucketlist.query.filter(
-            #         Bucketlist.name.like('%{}%'.format(
-            #             args['q'].lower()))).filter_by(
-            #         created_by=int(str(g.user.id))).all())
-
-            #     if bucketlists:
-            #         results = []
-            #         for bucketlist in bucketlists:
-            #             results.append({
-            #                 "id": bucketlist.id,
-            #                 "name": bucketlist.name,
-            #                 "created_at": str(bucketlist.created_at),
-            #                 "modified_at": str(bucketlist.modified_at),
-            #                 "created_by": bucketlist.created_by,
-            #                 "items": [{
-            #                     "id": item.id,
-            #                     "name": item.name,
-            #                     "done": item.done
-            #                 }
-            #                     for item in bucketlist.items]
-            #             })
-
-            #         return results, 200
-            #     else:
-            #         return ({"error":
-            #                  "You have no bucketlist containing that name."},
-            #                 404)
 
 
 class BucketListEdit(Resource):
