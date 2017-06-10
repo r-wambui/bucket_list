@@ -97,7 +97,6 @@ class AllBucketList(Resource):
         page = request.args.get('page')
         limit = request.args.get('limit')
         if page and limit:
-            print ("ssss")
             bucketlists = (Bucketlist.query.filter_by(
                 created_by=g.user.id).paginate(page=int(page),
                                                per_page=int(limit),
@@ -137,7 +136,7 @@ class AllBucketList(Resource):
                     if buckets:
                         page_details = {
                             "start": bucketlists.page,
-                            # "limit": 20,
+                            "limit": limit,
                             "next_page": next_url,
                             "prev_page": prev_url,
                             "bucketlists": buckets
