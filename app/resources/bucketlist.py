@@ -121,11 +121,10 @@ class AllBucketList(Resource):
                                     "date_modified": str(bucketlist.date_modified),
                                     "created_by": bucketlist.created_by, })
                     if bucketlists.has_next:
-                        next_url = urljoin(
-                            "http://127.0.0.1:5000/", "/v1/bucketlists"),
-                        url_for(
+                        next_url = urljoin("http://127.0.0.1:5000/", 
+                                            "/v1/bucketlists"),url_for(
                             "allbucketlist",
-                            page=bucketlists.prev_num,
+                            page=bucketlists.next_num,
                             limit=bucketlists.per_page)
 
                     if bucketlists.has_prev:
@@ -138,7 +137,7 @@ class AllBucketList(Resource):
                     if buckets:
                         page_details = {
                             "start": bucketlists.page,
-                            "limit": 20,
+                            # "limit": 20,
                             "next_page": next_url,
                             "prev_page": prev_url,
                             "bucketlists": buckets
@@ -147,7 +146,7 @@ class AllBucketList(Resource):
                     else:
                         return {"error": "You have no bucketlists"}, 404
 
-
+           
 class BucketListEdit(Resource):
     @auth.login_required
     def put(self, id):
