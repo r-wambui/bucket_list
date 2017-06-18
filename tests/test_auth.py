@@ -47,7 +47,7 @@ class TestUserAuthentication(unittest.TestCase):
         output = json.loads(response.data.decode())
         self.assertEqual(output['error'], "User already exist")
 
-    def test_user_login(self):
+    def test_login_user(self):
         """Test user can login """
         user = {"username": "rozzah", "password": "password"}
         userdata = json.dumps(user)
@@ -58,7 +58,7 @@ class TestUserAuthentication(unittest.TestCase):
         self.assertEqual(output['message'],
                          "You have been logged in successfully")
 
-    def test_user_cannot_login_with_invalid_credentials(self):
+    def test_login_user_with_invalid_credentials(self):
         """Test a user cannot login in with invalid credentials"""
         user = user = {"username": "bush", "password": "1234"}
         userdata = json.dumps(user)

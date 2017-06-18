@@ -31,7 +31,7 @@ class TestBucketlistItems(unittest.TestCase):
     def tearDown(self):
         db.drop_all()
 
-    def test_create_bucketlist_item_fails_if_user_not_loged_in(self):
+    def test_bucketlist_items_create_fails_if_user_not_loged_in(self):
         """
         Test token based authentication,
         A user cannot create bucketlists items without loging in
@@ -42,7 +42,7 @@ class TestBucketlistItems(unittest.TestCase):
             headers=None)
         self.assertEqual(response.status_code, 401)
 
-    def test_create_bucketlist_items(self):
+    def test_bucketlists_items_create(self):
         """Test a user can create bucketlist items """
         bucketlist_item = {"name": "home interior design"}
         response = self.client.post(
@@ -55,7 +55,7 @@ class TestBucketlistItems(unittest.TestCase):
         self.assertEqual(output['message'],
                          "Bucket item created successfully.")
 
-    def test_update_bucketlist_item(self):
+    def test_bucketlists_item_update(self):
         """edit bucketlist itemm"""
         bucketlist_item = {"name": "home interior design"}
         response = self.client.post(
@@ -72,7 +72,7 @@ class TestBucketlistItems(unittest.TestCase):
         self.assertEqual(output['message'],
                          "You have edited the bucketlist")
 
-    def test_delete_bucketlist_item(self):
+    def test_bucketlists_item_delete(self):
         """Test delete bucketlist iteem """
         bucketlist_item = {"name": "home interior design"}
         response = self.client.post(

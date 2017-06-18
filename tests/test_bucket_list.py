@@ -26,7 +26,7 @@ class TestBucketList(unittest.TestCase):
     def tearDown(self):
         db.drop_all()
 
-    def test_create_bucket_list_fails_if_user_not_loged_in(self):
+    def test_bucketlists_create_fails_if_user_not_logged_in(self):
         """
         Test token based authentication,
         A user cannot interact without loging in
@@ -36,7 +36,7 @@ class TestBucketList(unittest.TestCase):
             "/v1/bucketlists", data=json.dumps(bucket_list), headers=None)
         self.assertEqual(response.status_code, 401)
 
-    def test_create_bucket_list(self):
+    def test_bucketlists_create(self):
         """Test a bucket_list can be created """
         bucket_list = {"name": "interior_design"}
         response = self.client.post(
@@ -47,7 +47,7 @@ class TestBucketList(unittest.TestCase):
         self.assertEqual(output['message'],
                          "You have created a new bucket list")
 
-    def test_get_all_bucket_lists(self):
+    def test_bucketlists_get_all(self):
         """Test a user can fetch all the bucket_lists created """
         bucket_list = {"name": "interior_design"}
         bucket_list1 = {"name": "movies"}
@@ -66,7 +66,7 @@ class TestBucketList(unittest.TestCase):
         self.assertEqual(output[0], bucket_list)
         self.assertEqual(output[1], bucket_list1)
 
-    def test_get_single_bucket_list(self):
+    def test_bucketlists_fetch_one(self):
         """
         Test that a user can fetch a single
          bucket list using bucketlist Id
@@ -80,7 +80,7 @@ class TestBucketList(unittest.TestCase):
         output = json.loads(response.data.decode())
         self.assertEqual(output['id'], 1)
 
-    def test_update_bucket_list(self):
+    def test_bucketlists_update(self):
         """Test that a bucket list can be edited """
         bucket_list = {"name": "interior_design"}
         response = self.client.post(
@@ -96,7 +96,7 @@ class TestBucketList(unittest.TestCase):
         self.assertEqual(output['message'],
                          "You have updated the bucketlist")
 
-    def test_delete_bucket_list(self):
+    def test_bucketlists_delete(self):
         """Test that a single bucket list can be deleted """
         bucket_list = {"name": "interior_design"}
         self.client.post(
