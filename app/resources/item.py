@@ -28,6 +28,7 @@ parser.add_argument(
 
 
 class BucketListItem(Resource):
+    """Create a bucketlist item by ID"""
     @auth.login_required
     def post(self, id):
         args = parser.parse_args()
@@ -52,6 +53,7 @@ class BucketListItem(Resource):
 
 
 class EditBucketListItem(Resource):
+    """Edit and delete bucketlist items by ID"""
     @auth.login_required
     def put(self, bucket_id, item_id,):
         args = parser.parse_args()
@@ -85,6 +87,7 @@ class EditBucketListItem(Resource):
 
     @auth.login_required
     def delete(self, bucket_id, item_id):
+        """Deletes an item by its bucketlist ID"""
         bucketlist = Bucketlist.query.filter_by(id=bucket_id).first()
 
         if not bucketlist:

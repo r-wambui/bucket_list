@@ -22,6 +22,7 @@ user_fields = {
 
 
 class UserRegister(Resource):
+    """ Register user with username and password """
     def post(self):
         args = parser.parse_args()
         person = User.query.filter_by(username=args.username).first()
@@ -36,6 +37,7 @@ class UserRegister(Resource):
 
 
 class UserLogin(Resource):
+    """Login a user"""
     def post(self):
         args = parser.parse_args()
         person = User.query.filter_by(username=args.username).first()

@@ -8,6 +8,7 @@ from app.models import db
 class TestUserAuthentication(unittest.TestCase):
 
     def setUp(self):
+        """Initialises the tests"""
         self.client = run.app.test_client()
         db.create_all()
         user = {"username": "rozzah", "password": "password"}

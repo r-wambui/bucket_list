@@ -11,6 +11,7 @@ db = SQLAlchemy(app)
 
 
 class User(db.Model):
+    """User model which creates user table in db """
     ___tablename__ = "user"
 
     def __init__(self, username, password):
@@ -35,9 +36,9 @@ class User(db.Model):
 
     @staticmethod
     def verify_auth_token(token):
-        s = Serializer(app.config['SECRET_KEY'])
+        Serialize = Serializer(app.config['SECRET_KEY'])
         try:
-            data = s.loads(token)
+            data = Serialize.loads(token)
         except SignatureExpired:
             return None
         except BadSignature:
@@ -46,6 +47,7 @@ class User(db.Model):
 
 
 class Bucketlist(db.Model):
+    """Buckelist models which creates buckelist table """
     __tablename__ = "bucketlist"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -60,7 +62,8 @@ class Bucketlist(db.Model):
 
 
 class BucketlistItem(db.Model):
-    ___tablename__ = "bucketlist_item"
+    """Buckelistitem models which creates buckelistitem table """
+    __tablename__ = "bucketlist_item"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     date_created = db.Column(db.DateTime, default=datetime.now, nullable=False)

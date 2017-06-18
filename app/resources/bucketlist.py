@@ -5,6 +5,8 @@ from flask_restful import Resource, reqparse
 from flask import g, request, Flask, url_for
 
 from app.models import db, Bucketlist, User
+
+
 app = Flask(__name__)
 app.config.from_object('config.DevelopmentConfig')
 
@@ -38,6 +40,9 @@ parser.add_argument(
 
 
 class CreateBucketList(Resource):
+    """Create a bucketlist,
+         A user must login
+    """
 
     @auth.login_required
     def post(self):
@@ -58,10 +63,10 @@ class CreateBucketList(Resource):
 
 
 class SingleBucketList(Resource):
+    """ Fetching a single bucketlist by ID"""
     @auth.login_required
     def get(self, id):
         # fetch bucketlist by id
-
         bucketlist = Bucketlist.query.filter_by(id=id).first()
         if bucketlist:
             if bucketlist.created_by == g.user.id:
@@ -86,8 +91,9 @@ class SingleBucketList(Resource):
 
 
 class AllBucketList(Resource):
-
-    # fetch all the bucket list of a user
+    """Fetch all users bucketlists,
+        with pages and limit of the bucketlists
+    """
     @auth.login_required
     def get(self):
         page = request.args.get('page')
@@ -119,13 +125,14 @@ class AllBucketList(Resource):
                                     "date_modified":
                                     str(bucketlist.date_modified),
                                     "created_by": bucketlist.created_by, })
+                    # checking the next page
                 if bucketlists.has_next:
                     next_url = urljoin("http://127.0.0.1:5000/",
                                        "/v1/bucketlists"), url_for(
                         "allbucketlist",
                         page=bucketlists.next_num,
                         limit=bucketlists.per_page)
-
+                # checking th eprevious page
                 if bucketlists.has_prev:
                     prev_url = (urljoin("http://127.0.0.1:5000/",
                                         "/v1/bucketlists"), url_for(
@@ -148,7 +155,7 @@ class AllBucketList(Resource):
         else:
             bucketlists = (Bucketlist.query.filter_by(
                 created_by=g.user.id))
-
+            # create an empty list that will store the bucketlists
             buckets = []
             if bucketlists:
                 for bucketlist in bucketlists:
@@ -174,6 +181,7 @@ class AllBucketList(Resource):
 
 
 class BucketListEdit(Resource):
+    """Edit and delete the bucketlist by the given ID"""
     @auth.login_required
     def put(self, id):
         args = parser.parse_args()
@@ -187,7 +195,7 @@ class BucketListEdit(Resource):
 
                 if Bucketlist.query.filter_by(name=args.name.lower()).first():
                     return ({"error":
-                            "You can not edit with the same name."}, 409)
+                             "You can not edit with the same name."}, 409)
 
                 bucketlist.name = args.name
                 db.session.add(bucketlist)

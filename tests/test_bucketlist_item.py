@@ -56,7 +56,7 @@ class TestBucketlistItems(unittest.TestCase):
                          "Bucket item created successfully.")
 
     def test_update_bucketlist_item(self):
-        """ITEM EDIT"""
+        """edit bucketlist itemm"""
         bucketlist_item = {"name": "home interior design"}
         response = self.client.post(
             "/v1/bucketlists/1/item", data=json.dumps(bucketlist_item),
@@ -73,6 +73,7 @@ class TestBucketlistItems(unittest.TestCase):
                          "You have edited the bucketlist")
 
     def test_delete_bucketlist_item(self):
+        """Test delete bucketlist iteem """
         bucketlist_item = {"name": "home interior design"}
         response = self.client.post(
             "/v1/bucketlists/1/item", data=json.dumps(bucketlist_item),
