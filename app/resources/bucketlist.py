@@ -32,7 +32,7 @@ parser.add_argument(
     required=False
 )
 parser.add_argument(
-    'query', type=str, help='Query must be a string',
+    'q', type=str, help='Query must be a string',
     required=False
 )
 parser.add_argument(
@@ -98,6 +98,41 @@ class AllBucketList(Resource):
     def get(self):
         page = request.args.get('page')
         limit = request.args.get('limit')
+        q = request.args.get('q')
+
+        # Search bucketlist by the name
+        if q:
+            bucketlists = (Bucketlist.query.filter(
+                Bucketlist.name.like('%{}%'.format(
+                    q.lower()))).filter_by(
+                created_by=int(str(g.user.id))).all())
+
+            if bucketlists:
+                search = []
+                for bucketlist in bucketlists:
+                    search.append({"id": bucketlist.id,
+                                   "name": bucketlist.name,
+                                   "items": [{
+                                       "id": item.id,
+                                       "name": item.name,
+                                       "date_created":
+                                       str(item.date_created),
+                                       "date_modified":
+                                       str(item.date_modified),
+                                       "done": item.done}
+                                       for item in bucketlist.bucketitems],
+                                   "date_created":
+                                   str(bucketlist.date_created),
+                                   "date_modified":
+                                   str(bucketlist.date_modified),
+                                   "created_by": bucketlist.created_by, })
+
+                return search, 200
+            else:
+                return ({"error":
+                         "You have no bucketlist with the name."},
+                        404)
+        # get all bucketlists with pages and limit
         if page and limit:
             bucketlists = (Bucketlist.query.filter_by(
                 created_by=g.user.id).paginate(page=int(page),
@@ -205,7 +240,7 @@ class BucketListEdit(Resource):
                     'message': 'You have updated the bucketlist'
                 }), 201
             else:
-                return ({"error": "Invalid ID."}, 401)
+                return ({"error": "Invalid ID."}, 403)
 
     @auth.login_required
     def delete(self, id):
@@ -218,6 +253,6 @@ class BucketListEdit(Resource):
                 return ({"message": "delete successful"}, 204)
 
             elif bucketlist.created_by != g.user.id:
-                return ({"error": "Invalid ID."}, 400)
+                return ({"error": "Invalid ID."}, 403)
         else:
             return ({"error": "bucketlist does not exist."}, 404)
