@@ -50,7 +50,7 @@ class UserModel(db.Model):
 
 
 class Bucketlist(db.Model):
-    ___tablename__ = "bucketlist"
+    __tablename__ = "bucketlist"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
