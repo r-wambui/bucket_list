@@ -138,4 +138,3 @@ class TestBucketList(unittest.TestCase):
         response = self.client.get('/v1/bucketlists?page=1&limit=1',
                                    headers=self.headers)
         self.assertEqual(response.status_code, 200)
-
