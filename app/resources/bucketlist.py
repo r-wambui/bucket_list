@@ -47,9 +47,8 @@ class CreateBucketList(Resource):
 
         if bucketlist:
             return "You already have a bucketlist with that name", 409
-        else:
-            # import ipdb; ipdb.set_trace()
-
+        
+        else: 
             bucketlist = Bucketlist(name=args.name, created_by=g.user.id)
             db.session.add(bucketlist)
             db.session.commit()
@@ -93,7 +92,6 @@ class AllBucketList(Resource):
     # fetch all the bucket list of a user
     @auth.login_required
     def get(self):
-        # import ipdb;ipdb.set_trace()
         page = request.args.get('page')
         limit = request.args.get('limit')
         if page and limit:
