@@ -64,28 +64,28 @@ class SingleBucketList(Resource):
     @auth.login_required
     def get(self, id):
         # fetch bucketlist by id
-        if id:
-            bucketlist = Bucketlist.query.filter_by(id=id).first()
-            if bucketlist:
-                if bucketlist.created_by == g.user.id:
-                    return {"id": bucketlist.id,
-                            "name": bucketlist.name,
+       
+        bucketlist = Bucketlist.query.filter_by(id=id).first()
+        if bucketlist:
+            if bucketlist.created_by == g.user.id:
+                return {"id": bucketlist.id,
+                        "name": bucketlist.name,
 
-                            "items": [{
-                                "id": item.id,
-                                "name": item.name,
-                                "date_created": str(item.date_created),
-                                "date_modified": str(item.date_modified),
-                                "done": item.done}
-                                for item in bucketlist.bucketitems],
-                            "date_created": str(bucketlist.date_created),
-                            "date_modified": str(bucketlist.date_modified),
-                            "created_by": bucketlist.created_by, }
+                        "items": [{
+                            "id": item.id,
+                            "name": item.name,
+                            "date_created": str(item.date_created),
+                            "date_modified": str(item.date_modified),
+                            "done": item.done}
+                            for item in bucketlist.bucketitems],
+                        "date_created": str(bucketlist.date_created),
+                        "date_modified": str(bucketlist.date_modified),
+                        "created_by": bucketlist.created_by, }
 
-            else:
-                return (
-                    {"error": "There is no bucketlist with the given id."},
-                    404)
+        else:
+            return (
+                {"error": "There is no bucketlist with the given id."},
+                404)
 
 
 class AllBucketList(Resource):
