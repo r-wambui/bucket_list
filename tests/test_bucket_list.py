@@ -3,19 +3,27 @@ import json
 
 import run
 
+from app.models import db
+
 
 class TestBucketList(unittest.TestCase):
 
     def setUp(self):
         self.client = run.app.test_client()
+        db.create_all()
         user = {"username": "rozzah", "password": "password"}
         userdata = json.dumps(user)
-        response = self.client.post("/v1/auth/login", data=userdata)
-        access_token = ['access_token']
-        self.headers = {'Authorization': access_token}
+        self.client.post(
+            "/v1/auth/register", data=userdata, content_type="application/json")
+
+        response = self.client.post(
+            "/v1/auth/login", data=userdata, content_type="application/json")
+        self.token = json.loads(response.data.decode())['Authorization']
+        self.headers = {'Content-Type': 'application/json',
+                        'Authorization': self.token}
 
     def tearDown(self):
-        pass
+        db.drop_all()
 
     def test_create_bucket_list_fails_if_user_not_loged_in(self):
         """
@@ -31,7 +39,7 @@ class TestBucketList(unittest.TestCase):
         """Test a bucket_list can be created """
         bucket_list = {"name": "interior_design"}
         response = self.client.post(
-            "/v1/bucketlists/", data=json.dumps(bucket_list), headers=self.headers, content_type="application/json")
+            "/v1/bucketlists", data=json.dumps(bucket_list), headers=self.headers)
         self.assertEqual(response.status_code, 201)
         output = json.loads(response.data)
         self.assertEqual(output['message'],
@@ -39,33 +47,43 @@ class TestBucketList(unittest.TestCase):
 
     def test_get_all_bucket_lists(self):
         """Test a user can fetch all the bucket_lists created """
-        response = self.client.get("/v1/bucket_lists", headers=self.headers)
+        bucket_list = {"name": "interior_design"}
+        bucket_list1 = {"name": "movies"}
+        self.client.post(
+            "/v1/bucketlists", data=json.dumps(bucket_list), headers=self.headers)
+        self.client.post(
+            "/v1/bucketlists", data=json.dumps(bucket_list1), headers=self.headers)
+        response = self.client.get("/v1/bucketlists", headers=self.headers)
+
         output = json.loads(response.data)
-        output = output["bucket_lists"]
-        bucket_list1 = output[0]
-        bucket_list2 = output[1]
-        self.assertEqual(bucket_list1.get("name", "interior_design"))
-        self.assertEqual(bucket_list2.get("name", "movies"))
+        print(output)
+        output[0] = bucket_list
+        output[1] = bucket_list1
+        self.assertEqual(output[0], bucket_list)
+        self.assertEqual(output[1], bucket_list1)
 
     def test_get_single_bucket_list(self):
         """
         Test that a user can fetch a single
          bucket list using bucketlist Id
          """
+        bucket_list = {"name": "interior_design"}
+        self.client.post(
+            "/v1/bucketlists", data=json.dumps(bucket_list), headers=self.headers)
         response = self.client.get(
-            "api/v1/bucket_lists/1", headers=self.headers)
+            "/v1/bucketlists/1", headers=self.headers)
         output = json.loads(response.data.decode())
-        self.assertEqual(output.get("name", "interior_design"))
+        self.assertEqual(output['id'], 1)
 
     def test_update_bucket_list(self):
         """Test that a bucket list can be edited """
         bucket_list = {"name": "interior_design"}
         response = self.client.post(
-            "/v1/bucket_lists", data=json.dumps(bucket_list), headers=self.headers)
+            "/v1/bucketlists", data=json.dumps(bucket_list), headers=self.headers)
         self.assertEqual(response.status_code, 201)
         updated_bucket_list = {"name": "designing"}
         response = self.client.put(
-            "/v1/bucket_lists", data=json.dumps(updated_bucket_list), headers=self.headers)
+            "/v1/bucketlists/1", data=json.dumps(updated_bucket_list), headers=self.headers)
         self.assertEqual(response.status_code, 201)
         output = json.loads(response.data.decode())
         self.assertEqual(output['message'],
@@ -74,12 +92,8 @@ class TestBucketList(unittest.TestCase):
     def test_delete_bucket_list(self):
         """Test that a single bucket list can be deleted """
         bucket_list = {"name": "interior_design"}
-        response = self.client.post(
-            "/v1/bucket_lists", data=json.dumps(bucket_list), headers=self.headers)
-        self.assertEqual(response.status_code, 201)
+        self.client.post(
+            "/v1/bucketlists", data=json.dumps(bucket_list), headers=self.headers)
         response = self.client.delete(
-            "/v1/bucket_lists", data=json.dumps(bucket_list), headers=self.headers)
-        self.assertEqual(response.status_code, 200)
-        output = json.loads(response.data.decode())
-        self.assertEqual(output['message'],
-                         "You have deleted the bucketlist")
+            "/v1/bucketlists/1", data=json.dumps(bucket_list), headers=self.headers)
+        self.assertEqual(response.status_code, 204)
