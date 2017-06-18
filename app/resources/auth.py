@@ -47,7 +47,7 @@ class UserLogin(Resource):
         person = UserModel.query.filter_by(username=args.username).first()
         if person and person.verify_password(args.password):
             token = person.generate_auth_token()
-            return ({'Authorization':'Token ' + token.decode('ascii')}, 200)
+            return ({'Authorization':'Token ' + token.decode('ascii'), 'message': 'You have been logged in successfully'}, 200)
         # password = UserModel.query.filter_by(password=args.password).first()
         else:
             return {'error': "Invalid username/password"}, 401
