@@ -14,19 +14,18 @@ class DevelopmentConfig(BaseConfig):
     DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = 'iamthekeytothistokenthatiwantyoutouse'
-    BASE_URL= "http://127.0.0.1:5000/v1"
+    BASE_URL = "http://127.0.0.1:5000/v1"
 
 
 class TestingConfig(BaseConfig):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///./test.db'
     DEBUG = True
-   
 
 
 class StagingConfig(BaseConfig):
     DEBUG = True
-    
+
 
 class ProductionConfig(BaseConfig):
     DEBUG = False
@@ -39,7 +38,3 @@ app_config = {
     'staging': StagingConfig,
     'production': ProductionConfig,
 }
-
-# if __name__ == "__main__":
-#     app.run(debug=True)
-

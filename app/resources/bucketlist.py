@@ -1,11 +1,10 @@
 from urllib.parse import urljoin
-import json
 
 from flask_httpauth import HTTPTokenAuth
-from flask_restful import Resource, Api, fields, reqparse
+from flask_restful import Resource, reqparse
 from flask import g, request, Flask, url_for
 
-from app.models import db, Bucketlist, UserModel
+from app.models import db, Bucketlist, User
 app = Flask(__name__)
 app.config.from_object('config.DevelopmentConfig')
 
@@ -15,7 +14,7 @@ auth = HTTPTokenAuth(scheme="Token")
 @auth.verify_token
 def verify_token(token):
     """To validate the token sent by the user."""
-    user = UserModel.verify_auth_token(token)
+    user = User.verify_auth_token(token)
     if not user:
         return False
     g.user = user
@@ -43,27 +42,26 @@ class CreateBucketList(Resource):
     @auth.login_required
     def post(self):
         args = parser.parse_args()
-        bucketlist = Bucketlist.query.filter_by(name=args.name, created_by=g.user.id).first()
+        bucketlist = Bucketlist.query.filter_by(
+            name=args.name, created_by=g.user.id).first()
 
         if bucketlist:
             return "You already have a bucketlist with that name", 409
-        
-        else: 
-            bucketlist = Bucketlist(name=args.name, created_by=g.user.id)
-            db.session.add(bucketlist)
-            db.session.commit()
 
-            return ({
-                "name": args.name,
-                'message': 'You have created a new bucket list'
-            }), 201
+        bucketlist = Bucketlist(name=args.name, created_by=g.user.id)
+        db.session.add(bucketlist)
+        db.session.commit()
+
+        return ({
+            "name": args.name,
+            'message': 'You have created a new bucket list'}), 201
 
 
 class SingleBucketList(Resource):
     @auth.login_required
     def get(self, id):
         # fetch bucketlist by id
-       
+
         bucketlist = Bucketlist.query.filter_by(id=id).first()
         if bucketlist:
             if bucketlist.created_by == g.user.id:
@@ -99,9 +97,8 @@ class AllBucketList(Resource):
                 created_by=g.user.id).paginate(page=int(page),
                                                per_page=int(limit),
                                                error_out=False))
-            buckets = []  # create an empty bucket list
-            next_url = None
-            prev_url = None
+
+            buckets, next_url, prev_url = [], None, None
 
             if bucketlists:
                 for bucketlist in bucketlists.items:
@@ -111,12 +108,16 @@ class AllBucketList(Resource):
                                     "items": [{
                                         "id": item.id,
                                         "name": item.name,
-                                        "date_created": str(item.date_created),
-                                        "date_modified": str(item.date_modified),
+                                        "date_created":
+                                        str(item.date_created),
+                                        "date_modified":
+                                        str(item.date_modified),
                                         "done": item.done}
                                         for item in bucketlist.bucketitems],
-                                    "date_created": str(bucketlist.date_created),
-                                    "date_modified": str(bucketlist.date_modified),
+                                    "date_created":
+                                    str(bucketlist.date_created),
+                                    "date_modified":
+                                    str(bucketlist.date_modified),
                                     "created_by": bucketlist.created_by, })
                 if bucketlists.has_next:
                     next_url = urljoin("http://127.0.0.1:5000/",
@@ -142,7 +143,8 @@ class AllBucketList(Resource):
                     }
                     return page_details, 200
                 else:
-                    return {"error": "You have no bucketlists on that page"}, 404
+                    return {"error":
+                            "You have no bucketlists on that page"}, 404
         else:
             bucketlists = (Bucketlist.query.filter_by(
                 created_by=g.user.id))
@@ -157,11 +159,14 @@ class AllBucketList(Resource):
                                         "id": item.id,
                                         "name": item.name,
                                         "date_created": str(item.date_created),
-                                        "date_modified": str(item.date_modified),
+                                        "date_modified":
+                                        str(item.date_modified),
                                         "done": item.done}
                                         for item in bucketlist.bucketitems],
-                                    "date_created": str(bucketlist.date_created),
-                                    "date_modified": str(bucketlist.date_modified),
+                                    "date_created":
+                                    str(bucketlist.date_created),
+                                    "date_modified":
+                                    str(bucketlist.date_modified),
                                     "created_by": bucketlist.created_by, })
                 return buckets, 200
             else:
@@ -181,18 +186,18 @@ class BucketListEdit(Resource):
             if bucketlist.created_by == g.user.id:
 
                 if Bucketlist.query.filter_by(name=args.name.lower()).first():
-                    return ({"error": "You can not edit with the same name."}, 409)
+                    return ({"error":
+                            "You can not edit with the same name."}, 409)
 
-                else:
-                    bucketlist.name = args.name
-                    db.session.add(bucketlist)
-                    db.session.commit()
-                    return ({
-                        "name": args.name,
-                        'message': 'You have updated the bucketlist successfully'
-                    }), 201
+                bucketlist.name = args.name
+                db.session.add(bucketlist)
+                db.session.commit()
+                return ({
+                    "name": args.name,
+                    'message': 'You have updated the bucketlist'
+                }), 201
             else:
-                return ({"error": "You can only edit your own bucket lists."}, 401)
+                return ({"error": "Invalid ID."}, 401)
 
     @auth.login_required
     def delete(self, id):
@@ -205,6 +210,6 @@ class BucketListEdit(Resource):
                 return ({"message": "delete successful"}, 204)
 
             elif bucketlist.created_by != g.user.id:
-                return ({"error": "You can only delete your own buckelist."}, 400)
+                return ({"error": "Invalid ID."}, 400)
         else:
             return ({"error": "bucketlist does not exist."}, 404)

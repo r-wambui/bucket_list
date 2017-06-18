@@ -14,7 +14,8 @@ class TestBucketList(unittest.TestCase):
         user = {"username": "rozzah", "password": "password"}
         userdata = json.dumps(user)
         self.client.post(
-            "/v1/auth/register", data=userdata, content_type="application/json")
+            "/v1/auth/register", data=userdata,
+            content_type="application/json")
 
         response = self.client.post(
             "/v1/auth/login", data=userdata, content_type="application/json")
@@ -27,7 +28,7 @@ class TestBucketList(unittest.TestCase):
 
     def test_create_bucket_list_fails_if_user_not_loged_in(self):
         """
-        Test token based authentication, 
+        Test token based authentication,
         A user cannot interact without loging in
         """
         bucket_list = {"name": "interior_design"}
@@ -39,7 +40,8 @@ class TestBucketList(unittest.TestCase):
         """Test a bucket_list can be created """
         bucket_list = {"name": "interior_design"}
         response = self.client.post(
-            "/v1/bucketlists", data=json.dumps(bucket_list), headers=self.headers)
+            "/v1/bucketlists", data=json.dumps(bucket_list),
+            headers=self.headers)
         self.assertEqual(response.status_code, 201)
         output = json.loads(response.data)
         self.assertEqual(output['message'],
@@ -50,9 +52,11 @@ class TestBucketList(unittest.TestCase):
         bucket_list = {"name": "interior_design"}
         bucket_list1 = {"name": "movies"}
         self.client.post(
-            "/v1/bucketlists", data=json.dumps(bucket_list), headers=self.headers)
+            "/v1/bucketlists", data=json.dumps(bucket_list),
+            headers=self.headers)
         self.client.post(
-            "/v1/bucketlists", data=json.dumps(bucket_list1), headers=self.headers)
+            "/v1/bucketlists", data=json.dumps(bucket_list1),
+            headers=self.headers)
         response = self.client.get("/v1/bucketlists", headers=self.headers)
 
         output = json.loads(response.data)
@@ -69,7 +73,8 @@ class TestBucketList(unittest.TestCase):
          """
         bucket_list = {"name": "interior_design"}
         self.client.post(
-            "/v1/bucketlists", data=json.dumps(bucket_list), headers=self.headers)
+            "/v1/bucketlists", data=json.dumps(bucket_list),
+            headers=self.headers)
         response = self.client.get(
             "/v1/bucketlists/1", headers=self.headers)
         output = json.loads(response.data.decode())
@@ -79,21 +84,25 @@ class TestBucketList(unittest.TestCase):
         """Test that a bucket list can be edited """
         bucket_list = {"name": "interior_design"}
         response = self.client.post(
-            "/v1/bucketlists", data=json.dumps(bucket_list), headers=self.headers)
+            "/v1/bucketlists", data=json.dumps(bucket_list),
+            headers=self.headers)
         self.assertEqual(response.status_code, 201)
         updated_bucket_list = {"name": "designing"}
         response = self.client.put(
-            "/v1/bucketlists/1", data=json.dumps(updated_bucket_list), headers=self.headers)
+            "/v1/bucketlists/1", data=json.dumps(updated_bucket_list),
+            headers=self.headers)
         self.assertEqual(response.status_code, 201)
         output = json.loads(response.data.decode())
         self.assertEqual(output['message'],
-                         "You have updated the bucketlist successfully")
+                         "You have updated the bucketlist")
 
     def test_delete_bucket_list(self):
         """Test that a single bucket list can be deleted """
         bucket_list = {"name": "interior_design"}
         self.client.post(
-            "/v1/bucketlists", data=json.dumps(bucket_list), headers=self.headers)
+            "/v1/bucketlists", data=json.dumps(bucket_list),
+            headers=self.headers)
         response = self.client.delete(
-            "/v1/bucketlists/1", data=json.dumps(bucket_list), headers=self.headers)
+            "/v1/bucketlists/1", data=json.dumps(bucket_list),
+            headers=self.headers)
         self.assertEqual(response.status_code, 204)
