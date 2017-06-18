@@ -106,3 +106,36 @@ class TestBucketList(unittest.TestCase):
             "/v1/bucketlists/1", data=json.dumps(bucket_list),
             headers=self.headers)
         self.assertEqual(response.status_code, 204)
+
+    def test_bucketlist_delete_bucketlist_does_not_exist(self):
+        bucket_list = {"name": "interior_design"}
+        response = self.client.delete(
+            "/v1/bucketlists/1", data=json.dumps(bucket_list),
+            headers=self.headers)
+        self.assertEqual(response.status_code, 404)
+
+    def test_bucketlist_update_does_not_exist(self):
+        bucket_list = {"name": "interior_design"}
+        response = self.client.put(
+            "/v1/bucketlists/1", data=json.dumps(bucket_list),
+            headers=self.headers)
+        self.assertEqual(response.status_code, 404)
+
+    def test_bucketlist_search(self):
+        bucket_list = {"name": "interior_design"}
+        self.client.post(
+            "/v1/bucketlists", data=json.dumps(bucket_list),
+            headers=self.headers)
+        response = self.client.get('/v1/bucketlists?q=interior_design',
+                                   headers=self.headers)
+        self.assertEqual(response.status_code, 200)
+
+    def test_bucketlist_pagination(self):
+        bucket_list = {"name": "interior_design"}
+        self.client.post(
+            "/v1/bucketlists", data=json.dumps(bucket_list),
+            headers=self.headers)
+        response = self.client.get('/v1/bucketlists?page=1&limit=1',
+                                   headers=self.headers)
+        self.assertEqual(response.status_code, 200)
+
