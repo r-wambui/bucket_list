@@ -21,18 +21,16 @@ class TestingConfig(BaseConfig):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///./test.db'
     DEBUG = True
-    SECRET_KEY = 'iamthekeytothistokenthatiwantyoutouse'
+   
 
 
 class StagingConfig(BaseConfig):
     DEBUG = True
-    SECRET_KEY = 'iamthekeytothistokenthatiwantyoutouse'
-
+    
 
 class ProductionConfig(BaseConfig):
     DEBUG = False
     TESTING = False
-    SECRET_KEY = 'iamthekeytothistokenthatiwantyoutouse'
 
 
 app_config = {
