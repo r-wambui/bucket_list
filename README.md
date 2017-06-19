@@ -44,6 +44,14 @@ Interact with the API, send http requests using Postman
 | `/v1/bucketlists/<id>/items/<item_id>` | `DELETE`| Delete an item in a bucketlist|
 | `/v1/bucketlists/<id>/items/<item_id>` | `PUT`| update a bucketlist item details|
 ## Sample requests
+User register
+![Screen shot](app/screenshots/register.png)
+User login
+![Screen shot](app/screenshots/login.png)
+Token Authorization
+![Screen shot](app/screenshots/token.png)
+Add bucketlist
+![Screen shot](app/screenshots/bucket.png)
 
 ## Testing
 You can run the tests ``` nosetests --with-coverage```
