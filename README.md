@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/r-wambui/bucket_list.svg?branch=develop)](https://travis-ci.org/r-wambui/bucket_list)
+[![Coverage Status](https://coveralls.io/repos/github/r-wambui/bucket_list/badge.svg?branch=master)](https://coveralls.io/github/r-wambui/bucket_list?branch=master)
+
 # Bucketlist API
 According to Merriam-Webster Dictionary,  a Bucket List is a list of things that one has not done before but wants to do before dying.
 
