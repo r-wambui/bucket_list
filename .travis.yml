@@ -3,10 +3,12 @@ python:
   - "3.6"
 install:
   - pip install -r requirements.txt
+  - pip install python-coveralls
 env:
   - DB=sqlite
 
 script: nosetests --with-coverage
+- coveralls
 
 after_success:
   - coveralls
